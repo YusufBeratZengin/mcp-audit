@@ -1,0 +1,74 @@
+{
+  "name": "mcp-audit",
+  "version": "0.1.0",
+  "description": "Audit MCP server configs for plaintext secrets, unpinned packages, broad file access, shell servers and insecure transports",
+  "type": "module",
+  "license": "MIT",
+  "author": "Yusuf Berat Zengin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YusufBeratZengin/mcp-audit.git"
+  },
+  "homepage": "https://github.com/YusufBeratZengin/mcp-audit#readme",
+  "bugs": {
+    "url": "https://github.com/YusufBeratZengin/mcp-audit/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "security",
+    "audit",
+    "sarif",
+    "claude",
+    "cursor",
+    "linter"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "mcp-audit": "bin/mcp-audit.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/index.mjs",
+      "default": "./src/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "src",
+    "types",
+    "docs",
+    "examples",
+    "README.md",
+    "README.tr.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "test": "node --experimental-test-coverage scripts/test.mjs",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=85 --test-coverage-functions=85 --test-coverage-include=src/** scripts/test.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.types.json",
+    "check": "npm run lint && npm run typecheck && npm run build && npm test",
+    "demo": "node scripts/make-demo.mjs",
+    "prepublishOnly": "npm run check"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "eslint": "^9.39.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+is/
+.tmp-test/
+*.tgz
+.env*
+*.pem
+*.key
+*.bak

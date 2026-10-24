@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a new rule, output format or config location.
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Which risky MCP configuration pattern is not detected today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Describe the rule or option with a synthetic config example.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives

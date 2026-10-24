@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="904" height="756" viewBox="0 0 904 756" role="img" aria-labelledby="t d">
+  <title id="t">mcp-audit terminal output</title>
+  <desc id="d">Real output of mcp-audit run on examples/insecure.mcp.json: six findings across plaintext secrets, unpinned packages, file system root access, shell execution and an http remote server.</desc>
+  <rect x="1" y="1" width="902" height="754" rx="12" fill="#0d1117" stroke="#30363d"/>
+  <circle cx="26" cy="24" r="6" fill="#ff5f57"/><circle cx="46" cy="24" r="6" fill="#febc2e"/><circle cx="66" cy="24" r="6" fill="#28c840"/>
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace" font-size="14">
+    <text x="28" y="78" fill="#a5b4fc" xml:space="preserve">$ mcp-audit examples/insecure.mcp.json</text>
+    <text x="28" y="98" fill="#c9d1d9" xml:space="preserve"></text>
+    <text x="28" y="118" fill="#c9d1d9" xml:space="preserve">mcp-audit 0.1.0</text>
+    <text x="28" y="138" fill="#c9d1d9" xml:space="preserve"></text>
+    <text x="28" y="158" fill="#c9d1d9" xml:space="preserve">examples/insecure.mcp.json  5 servers</text>
+    <text x="28" y="178" fill="#c9d1d9" xml:space="preserve">  github  line 3</text>
+    <text x="28" y="198" xml:space="preserve"><tspan>    </tspan><tspan fill="#ff7b72" font-weight="bold">HIGH</tspan><tspan>     MCP001  </tspan><tspan fill="#c9d1d9">env.GITHUB_API_KEY looks like a secret written in plain text: hu*** (22 chars)</tspan></text>
+    <text x="28" y="218" fill="#8b949e" xml:space="preserve">                     fix: Move the value into your shell environment or a secret manager and</text>
+    <text x="28" y="238" fill="#8b949e" xml:space="preserve">                     reference it, for example &quot;${GITHUB_API_KEY}&quot;. Rotate it if the file was ever</text>
+    <text x="28" y="258" fill="#8b949e" xml:space="preserve">                     shared or committed.</text>
+    <text x="28" y="278" xml:space="preserve"><tspan>    </tspan><tspan fill="#e3b341" font-weight="bold">MEDIUM</tspan><tspan>   MCP002  </tspan><tspan fill="#c9d1d9">npx runs &quot;github-mcp-example&quot; with no version; every start may execute</tspan></text>
+    <text x="28" y="298" fill="#8b949e" xml:space="preserve">                     different code.</text>
+    <text x="28" y="318" fill="#8b949e" xml:space="preserve">                     fix: Pin an exact version, for example &quot;github-mcp-example@&lt;x.y.z&gt;&quot;, and update</text>
+    <text x="28" y="338" fill="#8b949e" xml:space="preserve">                     it deliberately.</text>
+    <text x="28" y="358" xml:space="preserve"><tspan>    </tspan><tspan fill="#79c0ff" font-weight="bold">LOW</tspan><tspan>      MCP006  </tspan><tspan fill="#c9d1d9">&quot;github-mcp-example&quot; (npm) is not on the trust list; check who publishes it and</tspan></text>
+    <text x="28" y="378" fill="#8b949e" xml:space="preserve">                     what it can access.</text>
+    <text x="28" y="398" fill="#8b949e" xml:space="preserve">                     fix: Review the package source and maintainers. Once reviewed, add it with</text>
+    <text x="28" y="418" fill="#8b949e" xml:space="preserve">                     --trust &quot;&lt;name or glob&gt;&quot; to silence this note.</text>
+    <text x="28" y="438" fill="#c9d1d9" xml:space="preserve">  files  line 8</text>
+    <text x="28" y="458" xml:space="preserve"><tspan>    </tspan><tspan fill="#ff7b72" font-weight="bold">HIGH</tspan><tspan>     MCP003  </tspan><tspan fill="#c9d1d9">args[2] gives the server access to the file system root (&quot;/&quot;).</tspan></text>
+    <text x="28" y="478" fill="#8b949e" xml:space="preserve">                     fix: Allow only the project folders the server needs, for example</text>
+    <text x="28" y="498" fill="#8b949e" xml:space="preserve">                     &quot;${workspaceFolder}&quot; or an explicit project path, and mount read-only where</text>
+    <text x="28" y="518" fill="#8b949e" xml:space="preserve">                     possible.</text>
+    <text x="28" y="538" fill="#c9d1d9" xml:space="preserve">  runner  line 12</text>
+    <text x="28" y="558" xml:space="preserve"><tspan>    </tspan><tspan fill="#ff7b72" font-weight="bold">HIGH</tspan><tspan>     MCP004  </tspan><tspan fill="#c9d1d9">The server is started with bash running a command string, so quoting and</tspan></text>
+    <text x="28" y="578" fill="#8b949e" xml:space="preserve">                     injection mistakes become code execution.</text>
+    <text x="28" y="598" fill="#8b949e" xml:space="preserve">                     fix: Call the program directly: set &quot;command&quot; to the executable and put each</text>
+    <text x="28" y="618" fill="#8b949e" xml:space="preserve">                     argument in its own &quot;args&quot; entry.</text>
+    <text x="28" y="638" fill="#c9d1d9" xml:space="preserve">  remote  line 16</text>
+    <text x="28" y="658" xml:space="preserve"><tspan>    </tspan><tspan fill="#ff7b72" font-weight="bold">HIGH</tspan><tspan>     MCP005  </tspan><tspan fill="#c9d1d9">url uses http:// to reach a remote host (http://mcp.example.com); tokens and</tspan></text>
+    <text x="28" y="678" fill="#8b949e" xml:space="preserve">                     tool results travel unencrypted.</text>
+    <text x="28" y="698" fill="#8b949e" xml:space="preserve">                     fix: Use https:// with a valid certificate.</text>
+    <text x="28" y="718" fill="#c9d1d9" xml:space="preserve"></text>
+    <text x="28" y="738" fill="#e3b341" xml:space="preserve">6 findings (4 high, 1 medium, 1 low) in 1 file, 5 servers.</text>
+  </g>
+</svg>

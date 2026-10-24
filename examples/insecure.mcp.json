@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "github-mcp-example"],
+      "env": { "GITHUB_API_KEY": "hunter2-not-a-real-key" }
+    },
+    "files": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@2025.1.14", "/"]
+    },
+    "runner": {
+      "command": "bash",
+      "args": ["-c", "my-mcp-server --stdio"]
+    },
+    "remote": {
+      "type": "http",
+      "url": "http://mcp.example.com/api"
+    },
+    "search": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch==1.2.3"]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+# Changelog
+
+All notable changes to this project are documented here. The format follows [Keep a Changelog 1.1](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+### Added
+- Initial release: discovery of known MCP config locations, six rules (MCP001-MCP006), text / JSON / SARIF output, `--fail-on` threshold and fix suggestions.
+- English and Turkish documentation, reproducible terminal demo, TypeScript declarations and cross-platform quality workflows.
+- In-process test discovery and coverage gates for lines, branches and functions on Node 24.
+
+### Fixed
+- Prevent malformed JSON snippets and install URLs from leaking credentials in reports.
+- Classify private IP addresses without trusting similarly named public DNS hosts.
+- Respect empty `NO_COLOR`, reject missing option values, support `--` and fail on invalid discovered configurations.
