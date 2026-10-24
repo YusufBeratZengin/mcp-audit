@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { dockerMounts, resolveLaunch } from '../launch.mjs';
 
 const HOME_ALIASES = new Set([
@@ -17,6 +18,10 @@ const SENSITIVE = /(^|\/)\.(ssh|aws|gnupg|kube|docker|azure|config\/gcloud|netrc
  */
 export function judgePath(raw) {
   let p = raw.trim().replace(/^["']|["']$/g, '').replace(/\\/g, '/');
+  if (!/^[A-Za-z]:$/.test(p)) {
+    p = /^[A-Za-z]:/.test(p) || p.startsWith('//')
+      ? path.win32.normalize(p).replace(/\\/g, '/') : path.posix.normalize(p);
+  }
   if (p.length > 1 && p.endsWith('/')) {
     p = p.slice(0, -1);
   }

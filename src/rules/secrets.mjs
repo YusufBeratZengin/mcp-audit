@@ -71,11 +71,13 @@ function secretKey(key) {
  * @param {string} where Field prefix, `env` or `headers`.
  * @param {Record<string, string>} pairs
  * @param {import('./util.mjs').Hit[]} hits
+ * @param {Set<string>} literals
  */
-function scanPairs(where, pairs, hits) {
+function scanPairs(where, pairs, hits, literals) {
   for (const [key, value] of Object.entries(pairs)) {
     const shape = shapeOf(value);
     if (shape) {
+      literals.add(value);
       hits.push({
         severity: 'critical',
         field: `${where}.${key}`,
@@ -83,6 +85,7 @@ function scanPairs(where, pairs, hits) {
         fix: 'Revoke this credential, then pass it by reference (for example "${' + key + '}" or an input prompt) instead of writing it into the file.',
       });
     } else if (secretKey(key) && looksLiteral(value)) {
+      literals.add(value);
       hits.push({
         field: `${where}.${key}`,
         message: `${where}.${key} looks like a secret written in plain text: ${redact(value)}`,
@@ -96,8 +99,9 @@ function scanPairs(where, pairs, hits) {
  * Scan the argument list for `--token=value`, `--token value` and bare tokens.
  * @param {string[]} args
  * @param {import('./util.mjs').Hit[]} hits
+ * @param {Set<string>} literals
  */
-function scanArgs(args, hits) {
+function scanArgs(args, hits, literals) {
   args.forEach((arg, index) => {
     const inline = /^--?([A-Za-z][\w-]*)=([\s\S]+)$/.exec(arg);
     const prevFlag = /^--?([A-Za-z][\w-]*)$/.exec(args[index - 1] ?? '');
@@ -110,6 +114,7 @@ function scanArgs(args, hits) {
     }
     const shape = shapeOf(arg);
     if (shape) {
+      literals.add(arg);
       hits.push({
         severity: 'critical',
         field: `args[${index}]`,
@@ -117,6 +122,7 @@ function scanArgs(args, hits) {
         fix: 'Revoke this credential and pass it through an environment variable instead of the command line, where every local user can see it.',
       });
     } else if (pair && secretKey(pair[0]) && looksLiteral(pair[1])) {
+      literals.add(pair[1]);
       hits.push({
         field: `args[${index}]`,
         message: `args[${index}] passes --${pair[0]} with a literal value: ${redact(pair[1])}`,
@@ -129,10 +135,12 @@ function scanArgs(args, hits) {
 /**
  * @param {string} url
  * @param {import('./util.mjs').Hit[]} hits
+ * @param {Set<string>} literals
  */
-function scanUrl(url, hits) {
+function scanUrl(url, hits, literals) {
   const shape = shapeOf(url);
   if (shape) {
+    literals.add(url);
     hits.push({
       severity: 'critical', field: 'url',
       message: `url holds a literal ${shape}: ${redact(url)}`,
@@ -142,6 +150,7 @@ function scanUrl(url, hits) {
   }
   const cred = /^[a-z][a-z0-9+.-]*:\/\/([^/\s:@]+):([^/\s@]+)@/i.exec(url);
   if (cred && !isReference(cred[2])) {
+    literals.add(cred[2]);
     hits.push({
       field: 'url',
       message: `url embeds a username and password: ${redact(cred[2])}`,
@@ -150,6 +159,7 @@ function scanUrl(url, hits) {
   }
   const query = /[?&]([A-Za-z_-]*(?:token|key|secret|password|auth|sig)[A-Za-z_-]*)=([^&#\s]+)/i.exec(url);
   if (query && !isReference(query[2])) {
+    literals.add(query[2]);
     hits.push({
       field: 'url',
       message: `url carries ${query[1]} as a query parameter: ${redact(query[2])}`,
@@ -164,23 +174,30 @@ export const secretsRule = {
   name: 'plaintext-secret',
   severity: 'high',
   summary: 'Token, password or API key written in plain text in env, headers, args or url.',
-  check(server) {
-    /** @type {import('./util.mjs').Hit[]} */
-    const hits = [];
-    scanPairs('env', server.env, hits);
-    scanPairs('headers', server.headers, hits);
-    scanArgs(server.args, hits);
-    for (const arg of server.args) {
-      if (/^https?:\/\//i.test(arg) && !shapeOf(arg)) {
-        /** @type {import('./util.mjs').Hit[]} */
-        const urlHits = [];
-        scanUrl(arg, urlHits);
-        hits.push(...urlHits.map(hit => ({ ...hit, field: 'args' })));
-      }
-    }
-    if (server.url) {
-      scanUrl(server.url, hits);
-    }
-    return hits;
-  },
+  check: server => scanSecrets(server),
 };
+
+/**
+ * Scan secrets and optionally collect detected literals for central masking.
+ * @param {import('../normalize.mjs').Server} server
+ * @param {Set<string>} [literals]
+ */
+export function scanSecrets(server, literals = new Set()) {
+  /** @type {import('./util.mjs').Hit[]} */
+  const hits = [];
+  scanPairs('env', server.env, hits, literals);
+  scanPairs('headers', server.headers, hits, literals);
+  scanArgs(server.args, hits, literals);
+  for (const arg of server.args) {
+    if (/^https?:\/\//i.test(arg) && !shapeOf(arg)) {
+      /** @type {import('./util.mjs').Hit[]} */
+      const urlHits = [];
+      scanUrl(arg, urlHits, literals);
+      hits.push(...urlHits.map(hit => ({ ...hit, field: 'args' })));
+    }
+  }
+  if (server.url) {
+    scanUrl(server.url, hits, literals);
+  }
+  return hits;
+}

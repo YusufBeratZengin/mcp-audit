@@ -1,4 +1,4 @@
-import { packageOf, resolveLaunch } from '../launch.mjs';
+import { packagesOf, resolveLaunch } from '../launch.mjs';
 import { globToRegExp } from './util.mjs';
 
 /**
@@ -41,29 +41,30 @@ export const provenanceRule = {
   severity: 'low',
   summary: 'Package comes from a git repository or URL, or from a publisher that is not on the trust list.',
   check(server, ctx) {
-    const ref = packageOf(resolveLaunch(server));
-    if (!ref || ref.source === 'local') {
-      return [];
-    }
-    if (ref.source === 'git' || ref.source === 'url') {
-      const sha = ref.source === 'git' && /#[0-9a-f]{40}$/i.test(ref.spec);
+    return packagesOf(resolveLaunch(server)).flatMap(ref => {
+      if (ref.source === 'local') {
+        return [];
+      }
+      if (ref.source === 'git' || ref.source === 'url') {
+        const sha = ref.source === 'git' && /#[0-9a-f]{40}$/i.test(ref.spec);
+        return [{
+          field: 'args',
+          severity: sha ? 'low' : 'medium',
+          message: `${ref.runner} installs a package straight from ${ref.source === 'git' ? 'a git repository' : 'a URL'} instead of a registry${sha ? ' (pinned to a commit)' : ''}.`,
+          fix: ref.source === 'git' && !sha
+            ? 'Pin the git reference to a full commit hash, or publish and install a registry version with integrity checks.'
+            : 'Prefer a registry release with an exact version, and review the source before trusting it.',
+        }];
+      }
+      const name = ref.ecosystem === 'pypi' ? ref.name.replace(/\[.*$/, '').toLowerCase() : ref.name;
+      if (trusted(name, [...BUILTIN_TRUST, ...ctx.trust])) {
+        return [];
+      }
       return [{
         field: 'args',
-        severity: sha ? 'low' : 'medium',
-        message: `${ref.runner} installs a package straight from ${ref.source === 'git' ? 'a git repository' : 'a URL'} instead of a registry${sha ? ' (pinned to a commit)' : ''}.`,
-        fix: ref.source === 'git' && !sha
-          ? 'Pin the git reference to a full commit hash, or publish and install a registry version with integrity checks.'
-          : 'Prefer a registry release with an exact version, and review the source before trusting it.',
+        message: `"${name}" (${ref.ecosystem}) is not on the trust list; check who publishes it and what it can access.`,
+        fix: 'Review the package source and maintainers. Once reviewed, add it with --trust "<name or glob>" to silence this note.',
       }];
-    }
-    const name = ref.ecosystem === 'pypi' ? ref.name.replace(/\[.*$/, '').toLowerCase() : ref.name;
-    if (trusted(name, [...BUILTIN_TRUST, ...ctx.trust])) {
-      return [];
-    }
-    return [{
-      field: 'args',
-      message: `"${name}" (${ref.ecosystem}) is not on the trust list; check who publishes it and what it can access.`,
-      fix: 'Review the package source and maintainers. Once reviewed, add it with --trust "<name or glob>" to silence this note.',
-    }];
+    });
   },
 };

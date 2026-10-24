@@ -6,7 +6,7 @@ import { parseJsonc } from './jsonc.mjs';
 import { extractServers } from './normalize.mjs';
 import { RULES } from './rules/index.mjs';
 import { rank } from './severity.mjs';
-import { maskKnownTokens } from './rules/secrets.mjs';
+import { maskKnownTokens, scanSecrets } from './rules/secrets.mjs';
 
 /**
  * @typedef {object} Finding
@@ -56,6 +56,16 @@ export function auditText(text, file, options = {}) {
   const ctx = { trust: options.trust ?? [] };
   /** @type {Finding[]} */
   const findings = [];
+  const literals = new Set();
+  for (const server of servers) {
+    scanSecrets(server, literals);
+  }
+  const mask = (/** @type {string} */ value) => {
+    for (const literal of [...literals].sort((a, b) => b.length - a.length)) {
+      value = value.split(literal).join('[REDACTED]');
+    }
+    return maskKnownTokens(value);
+  };
   for (const server of servers) {
     for (const rule of RULES) {
       if (ignore.has(rule.id)) {
@@ -66,8 +76,8 @@ export function auditText(text, file, options = {}) {
           ruleId: rule.id,
           ruleName: rule.name,
           severity: hit.severity ?? rule.severity,
-          message: maskKnownTokens(hit.message),
-          fix: maskKnownTokens(hit.fix),
+          message: mask(hit.message),
+          fix: mask(hit.fix),
           file,
           line: server.line,
           server: server.name,

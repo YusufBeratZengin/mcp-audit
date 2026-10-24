@@ -1,4 +1,4 @@
-import { packageOf, resolveLaunch } from '../launch.mjs';
+import { packagesOf, resolveLaunch } from '../launch.mjs';
 
 /** Packages whose purpose is to run arbitrary commands for the model. */
 const SHELL_PACKAGES = /(mcp-server-commands|mcp-shell|shell-mcp|server-shell|mcp-server-shell|desktop-commander|mcp-terminal|terminal-mcp|mcp-server-terminal|mcp-ssh|ssh-mcp|run-command|command-runner|mcp-bash|bash-mcp|mcp-exec|exec-mcp|shell-server)/i;
@@ -27,14 +27,15 @@ export const shellRule = {
         fix: 'Prefer starting the server executable directly, and keep the wrapper script in the repository where it is reviewed.',
       });
     }
-    const ref = packageOf(launch);
-    const target = ref?.name ?? launch.exe;
-    if (SHELL_PACKAGES.test(target) || SHELL_PACKAGES.test(server.name.replace(/_/g, '-'))) {
-      hits.push({
-        field: 'args',
-        message: `"${SHELL_PACKAGES.test(target) ? target : server.name}" looks like a server that lets the model run commands on your machine.`,
-        fix: 'Use it only when you need it, with a command allow-list, and keep human approval on for its tools. Remove it from shared configs.',
-      });
+    const refs = packagesOf(launch);
+    for (const target of refs.length ? refs.map(ref => ref.name) : [launch.exe]) {
+      if (SHELL_PACKAGES.test(target) || SHELL_PACKAGES.test(server.name.replace(/_/g, '-'))) {
+        hits.push({
+          field: 'args',
+          message: `"${SHELL_PACKAGES.test(target) ? target : server.name}" looks like a server that lets the model run commands on your machine.`,
+          fix: 'Use it only when you need it, with a command allow-list, and keep human approval on for its tools. Remove it from shared configs.',
+        });
+      }
     }
     return hits;
   },

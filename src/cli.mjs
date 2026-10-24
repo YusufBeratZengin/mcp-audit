@@ -191,7 +191,23 @@ export function main(argv, overrides = {}) {
       : formatText(result, { color });
   if (args.output) {
     try {
-      fs.writeFileSync(path.resolve(io.cwd, args.output), report);
+      const output = path.resolve(io.cwd, args.output);
+      const sources = [...result.files.map(f => f.path), ...result.errors.map(e => e.file)];
+      for (const shown of sources) {
+        const source = shown.startsWith('~/') ? path.resolve(io.home, shown.slice(2)) : path.resolve(io.cwd, shown);
+        let same = output === source;
+        if (!same && fs.existsSync(output) && fs.existsSync(source)) {
+          const a = fs.statSync(output, { bigint: true });
+          const b = fs.statSync(source, { bigint: true });
+          same = fs.realpathSync(output) === fs.realpathSync(source)
+            || (a.ino !== 0n && a.dev === b.dev && a.ino === b.ino);
+        }
+        if (same) {
+          io.stderr.write('mcp-audit: output must not overwrite a source configuration.\n');
+          return 2;
+        }
+      }
+      fs.writeFileSync(output, report);
     } catch (error) {
       io.stderr.write(`mcp-audit: cannot write ${args.output}: ${error instanceof Error ? error.message : String(error)}\n`);
       return 2;

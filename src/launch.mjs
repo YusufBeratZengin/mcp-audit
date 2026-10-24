@@ -51,9 +51,12 @@ export function resolveLaunch(server) {
   const exe = baseName(server.command);
   const args = server.args;
   if (exe === 'cmd') {
-    const at = args.findIndex(a => /^\/[ckrs]$/i.test(a));
-    const rest = at === -1 ? [] : args.slice(at + 1).filter(a => !/^\/[ckrs]$/i.test(a));
+    const at = args.findIndex(a => /^\/[ck]$/i.test(a));
+    const rest = at === -1 ? [] : args.slice(at + 1);
     if (rest.length > 1) {
+      if (rest.some(a => /[&|<>()^%!?\r\n"]/.test(a))) {
+        return inline('cmd', rest.join(' '));
+      }
       return { exe: baseName(rest[0]), args: rest.slice(1), shell: undefined };
     }
     if (rest.length === 1) {
@@ -196,6 +199,15 @@ function dockerRef(spec) {
  * @returns {PackageRef | undefined}
  */
 export function packageOf(launch) {
+  return packagesOf(launch)[0];
+}
+
+/**
+ * All explicitly requested packages, or the runner's single inferred target.
+ * @param {Launch} launch
+ * @returns {PackageRef[]}
+ */
+export function packagesOf(launch) {
   const { exe, args } = launch;
   if (exe === 'npx' || exe === 'bunx' || exe === 'pnpx') {
     return npmFrom(args, exe);
@@ -207,36 +219,46 @@ export function packageOf(launch) {
     return npmFrom(args.slice(1), 'npm exec');
   }
   if (exe === 'uvx') {
-    return pyFrom(args, 'uvx');
+    const ref = pyFrom(args, 'uvx');
+    return ref ? [ref] : [];
   }
   if (exe === 'uv' && args[0] === 'tool' && args[1] === 'run') {
-    return pyFrom(args.slice(2), 'uv tool run');
+    const ref = pyFrom(args.slice(2), 'uv tool run');
+    return ref ? [ref] : [];
   }
   if (exe === 'pipx' && args[0] === 'run') {
-    return pyFrom(args.slice(1), 'pipx run');
+    const ref = pyFrom(args.slice(1), 'pipx run');
+    return ref ? [ref] : [];
   }
   if ((exe === 'docker' || exe === 'podman') && args[0] === 'run') {
-    return dockerFrom(args.slice(1));
+    const ref = dockerFrom(args.slice(1));
+    return ref ? [ref] : [];
   }
-  return undefined;
+  return [];
 }
 
 /**
  * @param {string[]} args
  * @param {string} runner
- * @returns {PackageRef | undefined}
+ * @returns {PackageRef[]}
  */
 function npmFrom(args, runner) {
+  /** @type {PackageRef[]} */
+  const refs = [];
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--') {
-      return args[i + 1] ? npmRef(args[i + 1], runner) : undefined;
+      return refs.length ? refs : (args[i + 1] ? [npmRef(args[i + 1], runner)] : []);
     }
     if (a === '-p' || a === '--package') {
-      return args[i + 1] ? npmRef(args[i + 1], runner) : undefined;
+      if (args[i + 1]) {
+        refs.push(npmRef(args[++i], runner));
+      }
+      continue;
     }
     if (a.startsWith('--package=')) {
-      return npmRef(a.slice('--package='.length), runner);
+      refs.push(npmRef(a.slice('--package='.length), runner));
+      continue;
     }
     if (a.startsWith('-')) {
       if (NPM_VALUE_FLAGS.has(a)) {
@@ -244,9 +266,9 @@ function npmFrom(args, runner) {
       }
       continue;
     }
-    return npmRef(a, runner);
+    return refs.length ? refs : [npmRef(a, runner)];
   }
-  return undefined;
+  return refs;
 }
 
 /**
