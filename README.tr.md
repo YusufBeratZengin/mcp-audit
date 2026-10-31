@@ -107,6 +107,7 @@ Denetleyici için ayrı ayar dosyası gerekmez. `--trust` yalnızca registry kay
 | Claude Code proje | `.mcp.json` |
 | Cursor proje | `.cursor/mcp.json` |
 | VS Code çalışma alanı | `.vscode/mcp.json` |
+| MCP Manifest proje | `mcp-manifest.json` |
 | Claude Code kullanıcı | `~/.claude.json` (proje girdileri dahil) |
 | Cursor kullanıcı | `~/.cursor/mcp.json` |
 | Windsurf kullanıcı | `~/.codeium/windsurf/mcp_config.json` |
@@ -121,7 +122,7 @@ Linux'ta `XDG_CONFIG_HOME` varsayılanı `~/.config`, Windows'ta `APPDATA` varsa
 
 ## Nasıl çalışır?
 
-JSON/JSONC ayrıştırma → istemci biçimlerini ortak sunucu yapısına dönüştürme → altı bağımsız kural → sıralı bulgular ve düzeltme önerileri. `mcpServers`, `servers`, `mcp.servers` ve Claude Code `projects` yapıları desteklenir. İncelenen ayarlardaki komutlar ve sunucular çalıştırılmaz.
+JSON/JSONC ayrıştırma → istemci biçimlerini ortak sunucu yapısına dönüştürme → dokuz bağımsız kural → sıralı bulgular ve düzeltme önerileri. `mcpServers`, `servers`, `mcp.servers` ve Claude Code `projects` yapılarının yanı sıra bağımsız MCP sunucu manifestleri ve araç tanımları da desteklenir. İncelenen ayarlardaki komutlar ve sunucular çalıştırılmaz.
 
 | Kimlik | Denetim |
 |---|---|
@@ -131,6 +132,9 @@ JSON/JSONC ayrıştırma → istemci biçimlerini ortak sunucu yapısına dönü
 | MCP004 | Shell sarmalayıcıları ve bilinen komut çalıştırma sunucuları |
 | MCP005 | Yerel olmayan, şifrelenmemiş HTTP/WebSocket bağlantıları |
 | MCP006 | Git/URL kurulumları ve tanınmayan registry yayıncıları |
+| MCP007 | Manifestlerde joker, kök, shell veya aşırı geniş izinler |
+| MCP008 | Araç ve metaverilerde gizli Unicode, sıfır genişlikli boşluk ve Bidi geçersiz kılmaları |
+| MCP009 | Araç açıklamalarında prompt injection, talimat geçersiz kılma ve veri sızdırma metinleri |
 
 [Kural ayrıntıları, önem düzeyi istisnaları ve çözüm önerileri](docs/rules.md).
 

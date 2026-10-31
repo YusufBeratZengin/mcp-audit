@@ -107,6 +107,7 @@ No configuration file for the auditor is required. `--trust` suppresses only reg
 | Claude Code project | `.mcp.json` |
 | Cursor project | `.cursor/mcp.json` |
 | VS Code workspace | `.vscode/mcp.json` |
+| MCP Manifest project | `mcp-manifest.json` |
 | Claude Code user | `~/.claude.json` (including per-project entries) |
 | Cursor user | `~/.cursor/mcp.json` |
 | Windsurf user | `~/.codeium/windsurf/mcp_config.json` |
@@ -121,7 +122,7 @@ On Linux, `XDG_CONFIG_HOME` defaults to `~/.config`. On Windows, `APPDATA` defau
 
 ## How it works
 
-JSON/JSONC parsing → normalization of client server maps → six independent rules → sorted findings and fix suggestions. `mcpServers`, `servers`, `mcp.servers` and Claude Code `projects` containers are supported. No commands or servers in the inspected configuration are executed.
+JSON/JSONC parsing → normalization of client server maps → nine independent rules → sorted findings and fix suggestions. `mcpServers`, `servers`, `mcp.servers` and Claude Code `projects` containers are supported, as well as standalone MCP server manifests and tool definitions. No commands or servers in the inspected configuration are executed.
 
 | ID | Detects |
 |---|---|
@@ -131,6 +132,9 @@ JSON/JSONC parsing → normalization of client server maps → six independent r
 | MCP004 | Shell wrappers and known command-execution servers |
 | MCP005 | Unencrypted non-local HTTP/WebSocket connections |
 | MCP006 | Git/URL installs and unfamiliar registry publishers |
+| MCP007 | Wildcard, root, shell execution or broad permissions in manifests |
+| MCP008 | Hidden Unicode, zero-width spaces and Bidi overrides in tools and metadata |
+| MCP009 | Prompt injection, instruction overrides and exfiltration phrases in tool descriptions |
 
 See [rule details, severity exceptions and fixes](docs/rules.md).
 

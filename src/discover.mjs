@@ -22,6 +22,7 @@ export function knownLocations(platform) {
     { client: 'Claude Code (project)', scope: 'project', file: '.mcp.json', rel: ['.mcp.json'], base: 'cwd', confidence: 'documented' },
     { client: 'Cursor (project)', scope: 'project', file: '.cursor/mcp.json', rel: ['.cursor', 'mcp.json'], base: 'cwd', confidence: 'documented' },
     { client: 'VS Code (workspace)', scope: 'project', file: '.vscode/mcp.json', rel: ['.vscode', 'mcp.json'], base: 'cwd', confidence: 'documented' },
+    { client: 'MCP Manifest (project)', scope: 'project', file: 'mcp-manifest.json', rel: ['mcp-manifest.json'], base: 'cwd', confidence: 'documented' },
     { client: 'Claude Code (user)', scope: 'user', file: '~/.claude.json', rel: ['.claude.json'], base: 'home', confidence: 'documented' },
     { client: 'Cursor (user)', scope: 'user', file: '~/.cursor/mcp.json', rel: ['.cursor', 'mcp.json'], base: 'home', confidence: 'documented' },
     { client: 'Windsurf (user)', scope: 'user', file: '~/.codeium/windsurf/mcp_config.json', rel: ['.codeium', 'windsurf', 'mcp_config.json'], base: 'home', confidence: 'believed' },

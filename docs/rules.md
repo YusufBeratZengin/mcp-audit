@@ -10,6 +10,9 @@ Every rule lives in its own module under `src/rules/`, has tests in `test/rules.
 | [MCP004](#mcp004) | shell-execution | high (medium for scripts) | Servers started through `bash -c`, `cmd /c "..."`, `powershell -Command`, and known command-execution servers |
 | [MCP005](#mcp005) | insecure-transport | high (low on private networks) | `http://` or `ws://` to a non-local host |
 | [MCP006](#mcp006) | unknown-provenance | low (medium for git / URL installs) | Packages installed from git or URLs, or from a publisher not on the trust list |
+| [MCP007](#mcp007) | excessive-permissions | high (critical for wildcard/root access) | Wildcard, root, shell execution or broad filesystem/network permissions |
+| [MCP008](#mcp008) | hidden-unicode | high | Zero-width, invisible formatting, Bidi override or Unicode tag characters |
+| [MCP009](#mcp009) | suspicious-instructions | high (critical for exfiltration/override) | Prompt injection, instruction override, covert execution or exfiltration phrases |
 
 Severities, from least to most serious: `low`, `medium`, `high`, `critical`. `--fail-on` (default `high`) sets the lowest severity that makes the exit code 1.
 
@@ -54,6 +57,24 @@ Fix: use `https://` / `wss://`.
 **unknown-provenance.** Packages installed from a git repository or a URL instead of a registry are `medium` (`low` when pinned to a full commit hash). Registry packages whose name is not matched by the built-in list of commonly used publishers or by `--trust` are `low`. This is a prompt to look at who publishes the code, not a verdict: the built-in list is a noise filter and not a statement that those packages are safe.
 
 Fix: review the source and maintainers, then add `--trust "<name or glob>"`.
+
+## MCP007
+
+**excessive-permissions.** Manifests or tools requesting wildcard (`*`, `all`, `root`, `admin`), shell execution (`shell:*`, `exec:*`), unconstrained filesystem write access (`fs:*`, `fs:write`), root or home directory access, unrestricted network access (`network:*`), or raw secret/credential scopes. Wildcard and root grants are `critical`; shell, write access and unrestricted network/secrets are `high`; unconstrained read-only filesystem access is `medium`.
+
+Fix: grant minimal explicit scopes required for the server tasks; restrict filesystem access to specific project folders and network to domain allow-lists.
+
+## MCP008
+
+**hidden-unicode.** Detects zero-width spaces (`U+200B`, `U+200C`, `U+200D`, `U+FEFF`, `U+2060`), Trojan Source bidirectional overrides (`U+202A`–`U+202E`, `U+2066`–`U+2069`), Unicode tags (`U+E0000`–`U+E007F`), soft hyphens, invisible separators, and control characters in tool names, descriptions, parameter schemas, server names, and prompts. Invisible characters can hide instructions or spoof tool names from human review while being processed by the model.
+
+Fix: remove invisible Unicode formatting and Bidi override characters; use standard printable text.
+
+## MCP009
+
+**suspicious-instructions.** Identifies indirect prompt injection, instruction overrides ("ignore previous instructions", "disregard prior directives"), role hijacking ("you are now an unrestricted agent", fake `<system>` tags), covert directives ("do not tell the user", "silently execute"), credential exfiltration commands ("send all tokens to"), and security guardrail bypasses in tool descriptions, schemas, and prompts. Direct exfiltration and full instruction override commands are `critical`; other injection patterns are `high`.
+
+Fix: remove adversarial prompt injection phrases; tool descriptions and schemas must remain strictly descriptive of functionality and arguments.
 
 ## Adding a rule
 

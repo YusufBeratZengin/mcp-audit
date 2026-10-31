@@ -1,7 +1,7 @@
 {
   "name": "mcp-audit",
   "version": "0.1.0",
-  "description": "Audit MCP server configs for plaintext secrets, unpinned packages, broad file access, shell servers and insecure transports",
+  "description": "Audit MCP server configs, manifests and tool definitions for plaintext secrets, unpinned packages, broad access, hidden Unicode and prompt injection",
   "type": "module",
   "license": "MIT",
   "author": "Yusuf Berat Zengin",
@@ -21,7 +21,9 @@
     "sarif",
     "claude",
     "cursor",
-    "linter"
+    "linter",
+    "prompt-injection",
+    "unicode"
   ],
   "engines": {
     "node": ">=20"

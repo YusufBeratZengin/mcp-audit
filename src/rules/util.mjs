@@ -5,6 +5,7 @@
  * @property {string} fix How to resolve it.
  * @property {import('../severity.mjs').Severity} [severity] Overrides the rule default.
  * @property {string} [field] Where in the entry, e.g. `env.GITHUB_TOKEN`.
+ * @property {number} [line] Line number override for this specific finding.
  */
 
 /**

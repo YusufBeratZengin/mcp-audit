@@ -36,6 +36,12 @@ export function resolveLaunch(server: {
  */
 export function packageOf(launch: Launch): PackageRef | undefined;
 /**
+ * All explicitly requested packages, or the runner's single inferred target.
+ * @param {Launch} launch
+ * @returns {PackageRef[]}
+ */
+export function packagesOf(launch: Launch): PackageRef[];
+/**
  * Host-side sources of docker bind mounts (`-v src:dst`, `--mount src=...`).
  * @param {string[]} args Arguments after `run`.
  * @returns {string[]}

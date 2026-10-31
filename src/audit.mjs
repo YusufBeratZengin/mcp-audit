@@ -79,7 +79,7 @@ export function auditText(text, file, options = {}) {
           message: mask(hit.message),
           fix: mask(hit.fix),
           file,
-          line: server.line,
+          line: hit.line ?? server.line,
           server: server.name,
           scope: server.scope,
           field: hit.field,

@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Audit MCP server manifests and tool definitions from local files: check excessive permissions (MCP007), hidden Unicode characters and Bidi overrides (MCP008), and suspicious prompt injection or covert instruction texts (MCP009).
+- Support standalone MCP manifests (`mcp-manifest.json`) and tool definition files in project discovery and direct CLI paths.
 - Initial release: discovery of known MCP config locations, six rules (MCP001-MCP006), text / JSON / SARIF output, `--fail-on` threshold and fix suggestions.
 - English and Turkish documentation, reproducible terminal demo, TypeScript declarations and cross-platform quality workflows.
 - In-process test discovery and coverage gates for lines, branches and functions on Node 24.
