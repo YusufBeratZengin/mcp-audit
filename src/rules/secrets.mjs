@@ -157,14 +157,26 @@ function scanUrl(url, hits, literals) {
       fix: 'Remove credentials from the URL; use an Authorization header filled from an environment variable.',
     });
   }
-  const query = /[?&]([A-Za-z_-]*(?:token|key|secret|password|auth|sig)[A-Za-z_-]*)=([^&#\s]+)/i.exec(url);
-  if (query && !isReference(query[2])) {
-    literals.add(query[2]);
-    hits.push({
-      field: 'url',
-      message: `url carries ${query[1]} as a query parameter: ${redact(query[2])}`,
-      fix: 'Send the credential in a header from an environment variable; query strings end up in logs.',
-    });
+  // Work on the query alone: fragment contents are never sent to the server.
+  // Parse each pair separately to retain its encoded spelling for masking.
+  const endpoint = url.split('#', 1)[0];
+  const queryStart = endpoint.indexOf('?');
+  if (queryStart !== -1) {
+    for (const pair of endpoint.slice(queryStart + 1).split('&')) {
+      for (const [key, value] of new URLSearchParams(pair)) {
+        if (!/^[A-Za-z_-]*(?:token|key|secret|password|auth|sig)[A-Za-z_-]*$/i.test(key)
+          || !value || isReference(value)) {
+          continue;
+        }
+        literals.add(value);
+        literals.add(pair.slice(pair.indexOf('=') + 1));
+        hits.push({
+          field: 'url',
+          message: `url carries ${key} as a query parameter: ${redact(value)}`,
+          fix: 'Send the credential in a header from an environment variable; query strings end up in logs.',
+        });
+      }
+    }
   }
 }
 

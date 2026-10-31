@@ -23,6 +23,8 @@ Severities, from least to most serious: `low`, `medium`, `high`, `critical`. `--
 
 Fix: revoke the exposed credential, then pass it by reference from the environment or a secret manager.
 
+URL query scanning examines repeated parameters and decodes percent-encoded names and values, including in HTTP(S) URL arguments. A reference in one parameter does not hide credentials in later parameters. Encoded references are ignored, and fragment-only parameters are not scanned. Detected query values are masked across rule messages in their original encoded and decoded forms, including when MCP001 is ignored. Malformed percent escapes are tolerated without aborting the audit.
+
 ## MCP002
 
 **unpinned-package.** Resolves what the server really runs, looking through `cmd /c` wrappers, and flags `npx`, `bunx`, `pnpm dlx`, `yarn dlx`, `npm exec`, `uvx`, `uv tool run`, `pipx run`, and `docker`/`podman run` when the version is missing, `latest`, a range (`^1.0.0`) or a moving tag. Exact npm versions (`1.2.3`), `==` / `@` versions for Python and image tags or digests count as pinned.

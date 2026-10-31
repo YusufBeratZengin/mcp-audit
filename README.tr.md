@@ -134,6 +134,8 @@ JSON/JSONC ayrıştırma → istemci biçimlerini ortak sunucu yapısına dönü
 
 [Kural ayrıntıları, önem düzeyi istisnaları ve çözüm önerileri](docs/rules.md).
 
+MCP001, bağlantı adreslerinde ve HTTP(S) URL argümanlarında tekrarlanan ve yüzde kodlamalı gizli sorgu parametrelerini denetler. Kodlanmış ortam değişkeni referansları atlanır; saptanan değerlerin hem kodlanmış hem çözülmüş biçimleri `--ignore MCP001` kullanıldığında da maskelenir.
+
 ## Sınırlar / gizlilik
 
 Bu araç sezgisel bir statik denetleyicidir; güvenlik açığı veritabanı veya sunucunun güvenli olduğuna dair kanıt sunmaz. Ortam değişkenlerini çözmez, kurulu kodu incelemez, shell script'lerini takip etmez, registry imzalarını veya istemci ayar şemasını doğrulamaz. Tanınmayan yapılar ve bozuk sunucu girdileri atlanır. Shell çözümleme ve satır belirleme yaklaşık sonuç verebilir; karmaşık sarmalayıcılar ve tekrarlanan adlar doğruluğu azaltabilir. Container tag'leri sabitlenmiş sayılır ama değiştirilebilir; digest tercih edin.

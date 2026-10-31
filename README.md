@@ -134,6 +134,8 @@ JSON/JSONC parsing → normalization of client server maps → six independent r
 
 See [rule details, severity exceptions and fixes](docs/rules.md).
 
+MCP001 checks repeated and percent-encoded secret query parameters in endpoints and HTTP(S) URL arguments. Encoded environment references are ignored; detected values are masked in both their encoded and decoded forms, even with `--ignore MCP001`.
+
 ## Limitations / privacy
 
 This is a static heuristic linter, not a vulnerability database or proof that a server is safe. It does not resolve environment variables, inspect installed code, follow arbitrary shell scripts, check registry signatures or validate client configuration schemas. Unknown containers and malformed server entries are ignored. Shell parsing and source locations are best-effort; complex wrappers or repeated names can reduce accuracy. Container tags count as pinned although tags can move; prefer digests.

@@ -10,6 +10,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - In-process test discovery and coverage gates for lines, branches and functions on Node 24.
 
 ### Fixed
+- Detect repeated and percent-encoded URL secret query parameters, mask their encoded and decoded values across reports, and avoid false positives for encoded references and fragment-only parameters.
 - Reject report outputs that alias source configs, including hard links and symbolic links.
 - Mask detected literal credentials across rule messages and fix suggestions, even when MCP001 is ignored.
 - Detect cmd control operators in separate arguments, normalize filesystem paths and audit all explicit npm packages.
